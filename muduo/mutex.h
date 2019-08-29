@@ -33,7 +33,7 @@ public:
 		return holder_ == pthread_self();
 	}
 
-	phread_mutex_t* getMutex() {
+	pthread_mutex_t* getMutex() {
 		return &mutex_;
 	}
 
