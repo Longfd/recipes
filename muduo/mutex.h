@@ -28,8 +28,13 @@ public:
 		holder_ = 0;
 		assert(0 == pthread_mutex_unlock(&mutex_));
 	}
+
 	bool isLockedByThisThread() {
 		return holder_ == pthread_self();
+	}
+
+	phread_mutex_t* getMutex() {
+		return &mutex_;
 	}
 
 private:
