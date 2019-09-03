@@ -74,14 +74,14 @@ void Inventory::printAll() const {
 	}
 
 	// wait for request destruct
-	sleep(1);
+	printf("Inventory::printAll: set.size():%d\n", shared_obj->size());
+	sleep(2);
 
 	ReqSet::const_iterator it = shared_obj->begin();
-	printf("Inventory::printAll: set.size():%d\n", shared_obj->size());
 	for (; it != shared_obj->end(); ++it) {
 		(*it)->print();
 	}
-	printf("Inventory::printAll unlocked!\n");
+	printf("Inventory::printAll end!\n");
 }
 
 void* thread_routine(void*)
@@ -89,7 +89,7 @@ void* thread_routine(void*)
 	spReq sp = std::make_shared<Request>();
 	sp->process();
 	// wait for print
-	//sleep(2);
+	sleep(1);
 	sp->cancle();
 	pthread_detach(pthread_self());
 }
@@ -98,9 +98,8 @@ int main(int argc, char* argv[])
 {
 	pthread_t pid;
 	assert( 0 == pthread_create(&pid, NULL, thread_routine, NULL));
-	sleep(1);
+	usleep(500*1000);
 	g_inventory.printAll();
-	sleep(2);
 	return 0;
 }
 
