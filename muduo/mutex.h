@@ -3,6 +3,7 @@
 
 //#define NDEBUG // assert switch
 
+#include <sys/types.h>
 #include <pthread.h>
 #include <assert.h>
 #include "noncopyable.h"
@@ -22,7 +23,7 @@ public:
 
 	void lock() {
 		assert(0 == pthread_mutex_lock(&mutex_));
-		holder_ = pthread_self();
+		holder_ = gettid();
 	}
 	void unlock() {
 		holder_ = 0;
@@ -30,7 +31,7 @@ public:
 	}
 
 	bool isLockedByThisThread() {
-		return holder_ == pthread_self();
+		return holder_ == gettid();
 	}
 
 	pthread_mutex_t* getMutex() {
@@ -39,7 +40,7 @@ public:
 
 private:
 	pthread_mutex_t mutex_;
-	pthread_t holder_;
+	pid_t holder_;
 };
 
 class MutexLockGuard : noncopyable
