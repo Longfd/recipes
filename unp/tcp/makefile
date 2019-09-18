@@ -1,13 +1,17 @@
 PROGS =	tcpserv \
 		tcpcli
+CC = gcc
+CFLAGS = -I../lib -g -O2 -D_REENTRANT -Wall
+LIBS = ../libunp.a -lpthread
 
 all: ${PROGS} clean
 
-tcpserv: tcpserv.o writen.o str_echo.o
-	gcc -o $@ $^
+tcpserv: tcpserv.o 
+	${CC} ${CFLAGS} -o $@ tcpserv.o ${LIBS}
 
-tcpcli: tcpcli.o writen.o str_cli.o readline.o 
-	gcc -o $@ $^
+tcpcli: tcpcli.o  
+	${CC} ${CFLAGS} -o $@ tcpcli.o ${LIBS}
 
 clean:
 	rm -rf *.o
+
