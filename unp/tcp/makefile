@@ -14,4 +14,6 @@ tcpcli: tcpcli.o
 
 clean:
 	rm -rf *.o
+clear:
+	rm -rf ${PROGS}
 

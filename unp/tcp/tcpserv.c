@@ -1,5 +1,6 @@
 #include "unp.h"
 
+void sig_chld(int signo);
 int main(int argc, char **argv)
 {
 	int listenfd, connfd;
@@ -21,10 +22,16 @@ int main(int argc, char **argv)
 	if(listen(listenfd, LISTENQ) < 0) 
 		err_quit("listen error");
 
+	Signal(SIGCHLD, sig_chld);	/* must call waitpid() */
+
 	for (;;) {
 		clilen = sizeof(cliaddr);
-		if( (connfd = accept(listenfd, (SA*)&cliaddr, &clilen)) < 0) 
-			err_quit("accept error");
+		if( (connfd = accept(listenfd, (SA*)&cliaddr, &clilen)) < 0) {
+			if(connfd == EINTR)
+				continue;
+			else
+				err_quit("accept error");
+		}
 
 		if( (childpid = fork()) == 0) { // child process
 			if(close(listenfd) < 0) 
@@ -33,9 +40,20 @@ int main(int argc, char **argv)
 			str_echo(connfd);
 			exit(0);
 		}
-		
+
 		if(close(connfd) < 0) 
 			err_quit("close error");
 	}
+}
+
+void sig_chld(int signo)
+{
+	pid_t	pid;
+	int		stat;
+
+	while ( (pid = waitpid(-1, &stat, WNOHANG)) > 0) {
+		printf("child %d terminated\n", pid); // just for test, it's not suitable: printf() is non-reentrant func
+	}
+	return;
 }
 
