@@ -1,5 +1,5 @@
 OBJS = readline.o  str_cli.o  str_echo.o \
-	   writen.o error.o
+	   writen.o error.o signal.o
 
 all: unplib clean
 
