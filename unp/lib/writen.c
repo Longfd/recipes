@@ -1,6 +1,22 @@
 #include "unp.h"
 
 
+int Read(int fd, void* buf, size_t nbytes)
+{
+	size_t n;
+
+	if( (n= read(fd, buf, nbytes)) < 0)
+		err_quit("read error");
+
+	return n;
+}
+
+void Write(int fd, void *ptr, size_t nbytes)
+{
+	if (write(fd, ptr, nbytes) != nbytes)
+		err_quit("write error");
+}
+
 /* Write "n" bytes to a descriptor. */
 ssize_t	writen(int fd, const void *vptr, size_t n)
 {

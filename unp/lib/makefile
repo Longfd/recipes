@@ -1,5 +1,6 @@
 OBJS = str_cli.o  str_echo.o \
-	   writen.o error.o signal.o
+	   writen.o error.o signal.o \
+	   wrapsock.o
 
 all: unplib clean
 

@@ -1,4 +1,4 @@
-PROGS =	server\
+PROGS =	server servselect\
 		client
 CC = gcc
 CFLAGS = -I../lib -g -O2 -D_REENTRANT -Wall
@@ -8,6 +8,9 @@ all: ${PROGS} clean
 
 server: tcpserv.o 
 	${CC} ${CFLAGS} -o $@ tcpserv.o ${LIBS}
+
+servselect: tcpservselect.o 
+	${CC} ${CFLAGS} -o $@ tcpservselect.o ${LIBS}
 
 client: tcpcli.o  
 	${CC} ${CFLAGS} -o $@ tcpcli.o ${LIBS}

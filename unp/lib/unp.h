@@ -29,6 +29,8 @@ typedef	void	Sigfunc(int);	/* for signal handlers */
 #define	MAX(a,b)	((a) > (b) ? (a) : (b))
 
 /*basic function*/
+int Read(int fd, void* buf, size_t nbytes);
+void Write(int fd, void *ptr, size_t nbytes);
 void Writen(int fd, void *ptr, size_t nbytes);
 
 void str_echo(int sockfd);
@@ -42,6 +44,8 @@ char* Fgets(char *ptr, int n, FILE *stream);
 void err_quit(const char* fmt, ...);
 
 Sigfunc* Signal(int signo, Sigfunc *func);	/* for our signal() function */
+
+int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 
 #endif //__unp_h
 
