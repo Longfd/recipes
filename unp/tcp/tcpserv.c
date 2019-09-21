@@ -52,7 +52,7 @@ void sig_chld(int signo)
 	int		stat;
 
 	while ( (pid = waitpid(-1, &stat, WNOHANG)) > 0) {
-		printf("child %d terminated\n", pid); // just for test, it's not suitable: printf() is non-reentrant func
+		printf("[tcpserv:sig_chld]child %d terminated\n", pid); // just for test, it's not suitable: printf() is non-reentrant func
 	}
 	return;
 }

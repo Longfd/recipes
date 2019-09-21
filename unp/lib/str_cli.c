@@ -1,34 +1,58 @@
 #include "unp.h" 
 
-
-char* Fgets(char *ptr, int n, FILE *stream)
+int Read(int fd, void* buf, size_t nbytes)
 {
-	char *rptr;
+	size_t n;
 
-	if ( (rptr = fgets(ptr, n, stream)) == NULL && ferror(stream))
-		err_quit("fgets error");
+	if( (n= read(fd, buf, nbytes)) < 0)
+		err_quit("read error");
 
-	return (rptr);
+	return n;
 }
 
-void Fputs(const char *ptr, FILE *stream)
+void Write(int fd, void *ptr, size_t nbytes)
 {
-	if (fputs(ptr, stream) == EOF)
-		err_quit("fputs error");
+	if (write(fd, ptr, nbytes) != nbytes)
+		err_quit("write error");
 }
+
 
 void str_cli(FILE *fp, int sockfd)
 {
+	int maxfd1, n;
+	fd_set rset;
 	char sendline[MAXLINE], recvline[MAXLINE];
 
-	while (Fgets(sendline, MAXLINE, fp) != NULL) {
+	int stdinof = 0;
+	FD_ZERO(&rset);
+	while (1) {
+		maxfd1 = MAX(fileno(fp), sockfd) + 1;
+		if(stdinof == 0)
+			FD_SET(fileno(fp), &rset);
+		FD_SET(sockfd, &rset);
 
-		Writen(sockfd, sendline, strlen(sendline));
+		if ( select(maxfd1, &rset, NULL, NULL, NULL) < 0) 
+			err_quit("[str_cli]select error");
 
-		if (Readline(sockfd, recvline, MAXLINE) == 0) 
-			err_quit("str_cli: server terminate prematurely");
-
-		Fputs(recvline, stdout);
+		if(FD_ISSET(sockfd, &rset)) {
+			if ( (n = Read(sockfd, recvline, MAXLINE)) == 0) {
+				if(stdinof == 1)
+					return;
+				else
+					err_quit("str_cli: server terminate prematurely");
+			}
+			Write(fileno(stdout), recvline, n);
+		}
+		if(FD_ISSET(fileno(fp), &rset)) {
+			if (n = Read(fileno(fp), sendline, MAXLINE) == 0) {
+				// read EOF client close wirte
+				stdinof = 1;
+				shutdown(sockfd, SHUT_WR); // send FIN
+				FD_CLR(fileno(fp), &rset);
+			}
+			else
+				Writen(sockfd, sendline, n);
+		}
 	}
 }
 

@@ -11,6 +11,9 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/select.h>
+#include <sys/time.h>
+
 
 #define	SA	struct sockaddr
 #define SERV_PORT 6000
@@ -22,9 +25,11 @@
 #endif
 typedef	void	Sigfunc(int);	/* for signal handlers */
 
-void Writen(int fd, void *ptr, size_t nbytes);
+#define	MIN(a,b)	((a) < (b) ? (a) : (b))
+#define	MAX(a,b)	((a) > (b) ? (a) : (b))
 
-ssize_t Readline(int fd, void *ptr, size_t maxlen);
+/*basic function*/
+void Writen(int fd, void *ptr, size_t nbytes);
 
 void str_echo(int sockfd);
 

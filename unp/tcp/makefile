@@ -1,15 +1,15 @@
-PROGS =	tcpserv \
-		tcpcli
+PROGS =	server\
+		client
 CC = gcc
 CFLAGS = -I../lib -g -O2 -D_REENTRANT -Wall
 LIBS = ../libunp.a -lpthread
 
 all: ${PROGS} clean
 
-tcpserv: tcpserv.o 
+server: tcpserv.o 
 	${CC} ${CFLAGS} -o $@ tcpserv.o ${LIBS}
 
-tcpcli: tcpcli.o  
+client: tcpcli.o  
 	${CC} ${CFLAGS} -o $@ tcpcli.o ${LIBS}
 
 clean:
