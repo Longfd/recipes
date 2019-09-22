@@ -1,9 +1,12 @@
 #ifndef	__unp_h
 #define	__unp_h
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -13,6 +16,7 @@
 #include <sys/wait.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <poll.h>
 
 
 #define	SA	struct sockaddr
@@ -25,8 +29,15 @@
 #endif
 typedef	void	Sigfunc(int);	/* for signal handlers */
 
+#ifndef INFTIM
+#define INFTIM          (-1)    /* infinite poll timeout */
+#endif
+
 #define	MIN(a,b)	((a) < (b) ? (a) : (b))
 #define	MAX(a,b)	((a) > (b) ? (a) : (b))
+
+/* for poll openmax */
+#define OPEN_MAX_GUESS  256
 
 /*basic function*/
 int Read(int fd, void* buf, size_t nbytes);
@@ -46,6 +57,10 @@ void err_quit(const char* fmt, ...);
 Sigfunc* Signal(int signo, Sigfunc *func);	/* for our signal() function */
 
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+
+int Poll(struct pollfd* fdarray, unsigned long nfds, int timeout);
+
+long open_max(void);
 
 #endif //__unp_h
 

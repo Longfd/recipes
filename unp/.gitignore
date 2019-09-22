@@ -1,0 +1,13 @@
+// temporary files
+*.o
+
+// static lib
+libunp_block.a
+libunp.a
+
+// test program
+client 
+server
+servpoll
+servselect
+
