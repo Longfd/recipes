@@ -37,3 +37,10 @@ long open_max(void)
 	return(openmax);
 }
 
+void Shutdown(int fd, int how)
+{
+	if (shutdown(fd, how) < 0)
+		err_quit("shutdown error");
+}
+
+

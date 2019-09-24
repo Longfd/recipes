@@ -17,6 +17,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <poll.h>
+#include <fcntl.h>
 
 
 #define	SA	struct sockaddr
@@ -38,29 +39,28 @@ typedef	void	Sigfunc(int);	/* for signal handlers */
 
 /* for poll openmax */
 #define OPEN_MAX_GUESS  256
+long open_max(void);
 
 /*basic function*/
+void err_quit(const char* fmt, ...);
+
 int Read(int fd, void* buf, size_t nbytes);
 void Write(int fd, void *ptr, size_t nbytes);
 void Writen(int fd, void *ptr, size_t nbytes);
 
-void str_echo(int sockfd);
-
-void str_cli(FILE *fp, int sockfd);
-
-void Fputs(const char *ptr, FILE *stream);
-
-char* Fgets(char *ptr, int n, FILE *stream);
-
-void err_quit(const char* fmt, ...);
-
 Sigfunc* Signal(int signo, Sigfunc *func);	/* for our signal() function */
 
+void str_echo(int sockfd);
+void str_cli(FILE *fp, int sockfd);
+void str_clinonb(FILE* fp, int sockfd);
+
 int Select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
-
 int Poll(struct pollfd* fdarray, unsigned long nfds, int timeout);
+void Shutdown(int fd, int how);
 
-long open_max(void);
+int Fcntl(int fd, int cmd, int arg);
+
+char* gf_time(void);
 
 #endif //__unp_h
 

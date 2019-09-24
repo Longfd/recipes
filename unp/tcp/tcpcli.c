@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 	if ( connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) < 0) 
 		err_quit("connect error");
 
-	str_cli(stdin, sockfd);
+	str_clinonb(stdin, sockfd);
 	exit(0);
 }
 

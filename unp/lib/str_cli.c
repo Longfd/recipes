@@ -30,7 +30,7 @@ void str_cli(FILE *fp, int sockfd)
 			if ( (n = Read(fileno(fp), sendline, MAXLINE)) == 0) {
 				// read EOF client close wirte
 				stdinof = 1;
-				shutdown(sockfd, SHUT_WR); // send FIN
+				Shutdown(sockfd, SHUT_WR); // send FIN
 				FD_CLR(fileno(fp), &rset);
 			}
 			else 
