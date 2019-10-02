@@ -5,7 +5,7 @@ LIBFLAG = -lpthread
 
 all: ${PROGS} 
 
-cond_test: cond_test.o Thread.o
+cond_test: cond_test.o CurrentThread.o
 	${CC} ${CFLAGS} -o $@ $^ ${LIBFLAG}
 
 clean:

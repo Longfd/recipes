@@ -3,7 +3,7 @@
 
 #include "Mutex.h"
 
-class Condition : noncopyable 
+class Condition : Noncopyable 
 {
 public:
 	Condition(Mutex& theMutex) 

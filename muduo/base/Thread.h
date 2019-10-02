@@ -1,10 +1,18 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include <unistd.h>
-#include <sys/syscall.h>
+#include <pthread.h>
+#include "Noncopyable.h"
 
-pid_t gettid();
+class Thread : Noncopyable
+{
+public:
+	Thread() {}
+	~Thread() {}
+
+private:
+};
+
 
 #endif // THREAD_H
 

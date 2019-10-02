@@ -4,10 +4,10 @@
 #include <sys/types.h>
 #include <pthread.h>
 #include <assert.h>
-#include "Thread.h"
+#include "CurrentThread.h"
 #include "Noncopyable.h"
 
-class Mutex : noncopyable
+class Mutex : Noncopyable
 {
 public:
 	Mutex() 
@@ -22,14 +22,14 @@ public:
 
 	void lock() { 
 		assert(pthread_mutex_lock(&_mutex) == 0); 
-		_holder = gettid();
+		_holder = CurrentThread::gettid();
 	}
 	void unlock() { 
 		_holder = 0;
 		assert(pthread_mutex_unlock(&_mutex) == 0); 
 	}
 
-	bool isLockedBythisThread() { return _holder == gettid(); };
+	bool isLockedBythisThread() { return _holder == CurrentThread::gettid(); };
 	pthread_mutex_t* getPthreadMutex() { return &_mutex; }
 
 private:
@@ -37,7 +37,7 @@ private:
 	pid_t _holder;
 };
 
-class MutexLockGuard : noncopyable
+class MutexLockGuard : Noncopyable
 {
 public:
 	MutexLockGuard(Mutex& theMutex) 

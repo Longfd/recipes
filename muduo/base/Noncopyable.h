@@ -1,14 +1,14 @@
 #ifndef NONCOPYABLE_H
 #define NONCOPYABLE_H
 
-class noncopyable 
+class Noncopyable 
 {
 protected:
-	noncopyable() = default; // c++11 key words
-	~noncopyable() = default;
+	Noncopyable() = default; // c++11 key words
+	~Noncopyable() = default;
 
-	noncopyable(const noncopyable&) = delete; // c++11 key words
-	noncopyable& operator=(const noncopyable&) = delete;
+	Noncopyable(const Noncopyable&) = delete; // c++11 key words
+	Noncopyable& operator=(const Noncopyable&) = delete;
 };
 
 #endif //NONCOPYABLE_H
