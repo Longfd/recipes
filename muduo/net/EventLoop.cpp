@@ -33,7 +33,7 @@ EventLoop::~EventLoop()
 void EventLoop::loop()
 {
 	assert(!looping_);
-	assertInLoopThread();
+	assertInLoopThread(); // loop must execute at I/O thread where EventLoop obj was created
 	looping_ = true;
 
 	::poll(NULL, 0, 5 * 1000);

@@ -4,6 +4,7 @@
 #include "../base/Noncopyable.h"
 #include "../base/CurrentThread.h"
 
+class Channel;
 class EventLoop : Noncopyable
 {
 public:
@@ -24,6 +25,9 @@ public:
 	}
 
 	EventLoop* getEventLoopOfCurrentThread();
+
+	// internal usage
+	void updateChannel(Channel* theChannel);
 
 private:
 	void abortNotInLoopThread();
