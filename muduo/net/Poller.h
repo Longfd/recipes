@@ -27,6 +27,8 @@ public:
 	
 	// changes the interested I/O events
 	// Must be called in the loop thread
+	
+	// add new channel with fd, or update events of fd in channel
 	void updateChannel(Channel* channel);
 	void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
 

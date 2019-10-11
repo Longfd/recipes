@@ -4,7 +4,10 @@
 #include "../base/Noncopyable.h"
 #include "../base/CurrentThread.h"
 
+#include <memory>
+
 class Channel;
+class Poller;
 class EventLoop : Noncopyable
 {
 public:
@@ -12,6 +15,7 @@ public:
 	~EventLoop();
 
 	void loop();
+	void quit();
 
 	// avoid another thread use the eventloop of currentthread
 	bool isInLoopThread() const {
@@ -30,10 +34,15 @@ public:
 	void updateChannel(Channel* theChannel);
 
 private:
+	typedef std::vector<Channel*> ChannelList;
+	
 	void abortNotInLoopThread();
 
 	bool looping_;
+	bool quit_;
 	const pid_t thredId_; // initialized at constructor
+	std::unique_ptr<Poller> poller_;
+	ChannelList activeChannels_;
 };
 
 #endif // EVENTLOOP_H

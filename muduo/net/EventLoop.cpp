@@ -7,6 +7,8 @@
 // belongs to currentthread who first create the Eventloop obj;
 __thread EventLoop* t_loopInThisThread = 0;
 
+const int kPollTimeMs = 10000;
+
 EventLoop::EventLoop() 
 	:looping_(false),
 	thredId_(CurrentThread::gettid())
@@ -35,8 +37,18 @@ void EventLoop::loop()
 	assert(!looping_);
 	assertInLoopThread(); // loop must execute at I/O thread where EventLoop obj was created
 	looping_ = true;
+	quit_ = false;
 
-	::poll(NULL, 0, 5 * 1000);
+	//::poll(NULL, 0, 5 * 1000);
+	while (!quit_)
+	{
+		activeChannels_.clear();
+		poller_->poll(kPollTimeMs, &activeChannels_);
+
+		for (auto it : activeChannels_) {
+			(*it)->handleEvent();
+		}
+	}
 
 	std::cout << "[LOG_TRACE]EventLoop " << this << " stop looping\n";
 	looping_ = false;
@@ -54,9 +66,17 @@ EventLoop* EventLoop::getEventLoopOfCurrentThread()
 	return t_loopInThisThread;
 }
 
+void EventLoop::quit()
+{
+	quit_ = true;
+}
 
-
-
+void EventLoop::updateChannel(Channel* theChannel)
+{
+	assert(theChannel->ownerLoop() == this);
+	assertInLoopThread();
+	poller_->updateChannel(theChannel);
+}
 
 
 
