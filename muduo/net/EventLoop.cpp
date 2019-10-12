@@ -1,17 +1,23 @@
 #include "EventLoop.h"
+#include "Poller.h"
+#include "Channel.h"
+
 #include <iostream>
 #include <assert.h>
 #include <stdlib.h>
 #include <poll.h>
 
 // belongs to currentthread who first create the Eventloop obj;
+// "__thread" key words avoid one thread have more than one EventLoop obj;
+// gettid() avoid EventLoop obj called by another thread
 __thread EventLoop* t_loopInThisThread = 0;
 
 const int kPollTimeMs = 10000;
 
 EventLoop::EventLoop() 
 	:looping_(false),
-	thredId_(CurrentThread::gettid())
+	thredId_(CurrentThread::gettid()),
+	poller_(new Poller(this))
 {
 	std::cout << "[INFO]EventLoop created at: " << this << " thredId_: " << thredId_ << '\n';
 	if(t_loopInThisThread)
@@ -46,7 +52,7 @@ void EventLoop::loop()
 		poller_->poll(kPollTimeMs, &activeChannels_);
 
 		for (auto it : activeChannels_) {
-			(*it)->handleEvent();
+			it->handleEvent();
 		}
 	}
 

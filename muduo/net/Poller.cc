@@ -1,9 +1,11 @@
 #include "Poller.h"
 #include "Channel.h"
+#include "../base/TimeStamp.h"
 
 #include <iostream>
 #include <stdlib.h>
 #include <assert.h>
+#include <poll.h>
 
 
 Poller::Poller(EventLoop* loop)
@@ -15,13 +17,13 @@ Poller::~Poller()
 {
 }
 
-Poller::poll(int timeoutMs, ChannelList* activeChannels)
+Timestamp Poller::poll(int timeoutMs, ChannelList* activeChannels)
 {
-	int numEvents = poll(pollfds_.data(), pollfds_.size(), timeoutMs);
-	TimeStamp now(TimeStamp::now());
+	int numEvents = ::poll(pollfds_.data(), pollfds_.size(), timeoutMs);
+	Timestamp now(Timestamp::now());
 
 	if(numEvents > 0) {
-		std::cout << numEvents << "events happend\n";
+		std::cout << "[Poller::poll]" << numEvents << " events happend\n";
 		fillActiveChannels(numEvents, activeChannels);
 	}
 	else if(numEvents == 0) {
@@ -48,7 +50,7 @@ void Poller::fillActiveChannels(int numEvents, ChannelList* activeChannels) cons
 			assert(ch != channels_.end());
 
 			Channel* channel = ch->second;
-			assert(channel->fd == it->fd);
+			assert(channel->fd() == it->fd);
 			channel->set_revents(it->revents);
 
 			activeChannels->push_back(channel);
@@ -68,13 +70,13 @@ void Poller::updateChannel(Channel* channel)
 
 		struct pollfd pfd;
 		pfd.fd = channel->fd();
-		pfd.events = static_cast<short>channel->events();
+		pfd.events = static_cast<short>(channel->events());
 		pfd.revents = 0;
 		pollfds_.push_back(pfd);
 
 		int idx = static_cast<int>(pollfds_.size()) - 1;
 		channel->set_index(idx);
-		channels_[pfd->fd()] = channel;
+		channels_[pfd.fd] = channel;
 	}
 	else
 	{ // update exists one

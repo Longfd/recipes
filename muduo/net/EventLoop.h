@@ -5,6 +5,7 @@
 #include "../base/CurrentThread.h"
 
 #include <memory>
+#include <vector>
 
 class Channel;
 class Poller;

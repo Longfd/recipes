@@ -3,15 +3,15 @@
 // I/O mutilplexing with poll(2)
 // this class dosn't own the channel objects
 
-#include <map>
-#include <vector>
 
 #include "../base/Noncopyable.h"
 #include "../base/TimeStamp.h"
 #include "EventLoop.h"
 
-struct pollfd;
+#include <map>
+#include <vector>
 
+struct pollfd;
 class Channel;
 class Poller : Noncopyable
 {
@@ -23,7 +23,7 @@ public:
 
 	// Poll the I/O events
 	// Must be called in the loop thread
-	TimeStamp poll(int timeoutMs, ChannelList* activeChannels);
+	Timestamp poll(int timeoutMs, ChannelList* activeChannels);
 	
 	// changes the interested I/O events
 	// Must be called in the loop thread

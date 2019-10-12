@@ -23,7 +23,7 @@ public:
 	int fd() const { return fd_; }
 	int events() const { return events_; }
 	void set_revents(int revt) { revents_ = revt; }
-	bool isNoneEvent() const { return events_ = kNoneEvent; }
+	bool isNoneEvent() const { return events_ == kNoneEvent; }
 
 	void enableReading() { events_ |= kReadEvent; update(); }
 	void enableWriting() { events_ |= kWriteEvent; update(); }

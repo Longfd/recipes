@@ -1,7 +1,7 @@
 #include "Channel.h"
 #include "EventLoop.h"
 
-#define _GNU_SOURCE /* See feature_test_macros(7) */
+//#define _GNU_SOURCE enable by default
 #include <poll.h>
 #include <iostream>
 
