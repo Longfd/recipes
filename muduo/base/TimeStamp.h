@@ -17,6 +17,8 @@ public:
 	{
 	}
 
+	int64_t getTime() const { return microSecondsSinceEpoch_; }
+
 	// get time of now.
 	static Timestamp now();
 
