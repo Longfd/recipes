@@ -2,6 +2,7 @@
 #define TIMESTAMP_H
 
 #include <stdint.h>
+#include <string>
 
 
 class Timestamp 
@@ -26,6 +27,17 @@ public:
 	{ 
 		return Timestamp();
  	}
+
+	std::string toString() const 
+	{
+		char buf[32] = {0};
+		int64_t seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;
+		int64_t microseconds = microSecondsSinceEpoch_ % kMicroSecondsPerSecond;
+		snprintf(buf, sizeof(buf)-1, "%" PRId64 ".%06" PRId64 "", seconds, microseconds);
+		return buf;
+	}
+
+	int64_t microSecondsSinceEpoch() const { return microSecondsSinceEpoch_; }
 
 
 	static const int kMicroSecondsPerSecond = 1000 * 1000;

@@ -28,6 +28,8 @@ public:
 
 	typedef std::pair<Timestamp, Timer*> Entry;
 	typedef std::set<Entry> TimerList;
+	typedef std::pair<Timer*, int64_t> ActiveTimer;
+	typedef std::set<ActiveTimer> ActiveTimerSet;
 
 	// called when timer expire
 	void handleRead();
@@ -39,9 +41,14 @@ public:
 	bool insert(Timer* timer);
 
 	EventLoop* loop_;
-	const int timer_fd;
+	const int timerfd_;
 	Channel timerfdChannel_;
 	TimerList timers_;
+
+	// for cancel()
+	ActiveTimerSet activeTimers_;
+	bool callingExpiredTimers_; // atomic
+	ActiveTimerSet cancelingTimers_;
 };
 
 #endif // TIMERQUEUE_H
