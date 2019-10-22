@@ -21,8 +21,9 @@ public:
 	~TimerQueue();
 
 	// must be thread safe, usually be called from other threads
-	TimerId addTimer(const TimerCallback& cb, 
-					 Timestamp when, double interval);
+	TimerId addTimer(TimerCallback cb, 
+					 Timestamp when, 
+					 double interval);
 
 	void cancel(TimerId timerId);
 

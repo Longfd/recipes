@@ -75,10 +75,14 @@ int main(int argc, char *argv[])
 	print_elapsed_time();
 	printf("timer started\n");
 
+	uint64_t expPerRead = 2;
+	uint64_t sleepTime = expPerRead * atoi(argv[2]);
 	for (tot_exp = 0; tot_exp < max_exp;) {
 		s = read(fd, &exp, sizeof(uint64_t));
 		if (s != sizeof(uint64_t))
 			handle_error("read");
+
+		sleep(sleepTime);
 
 		tot_exp += exp;
 		print_elapsed_time();

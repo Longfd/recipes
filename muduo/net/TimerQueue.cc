@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "TimerId.h"
 #include "EventLoop.h"
+#include "Callbacks.h"
 #include "../base/IgnoreUnusedWarning.h"
 
 #include <sys/timerfd.h>
@@ -91,6 +92,75 @@ TimerQueue::~TimerQueue()
 	}
 }
 
+TimerId addTimer(TimerCallback cb, 
+				 Timestamp when, 
+				 double interval)
+{
+	Timer* timer = new Timer(std::move(cb), when, interval);
+	loop_->runInLoop(
+			std::bind(&TimerQueue::addTimerInLoop, this, timer));
+	return TimerId(timer, timer->sequence());
+}
+
+void TimerQueue::addTimerInLoop(Timer* timer)
+{
+	loop_->assertInLoopThread();
+	bool earliestChanged = insert(timer);
+
+	if (earliestChanged)
+	{
+		resetTimerfd(timerfd_, timer->expiration());
+	}
+}
+
+void TimerQueue::cancel(TimerId timerId)
+{
+	loop_->runInLoop(
+			std::bind(&TimerQueue::cancelInLoop, this, timerId));
+}
+
+void TimerQueue::cancelInLoop(TimerId timerId)
+{
+	loop_->assertInLoopThread();
+	assert(timers_.size() == activeTimers_.size());
+	ActiveTimer timer(timerId.timer_, timerId.sequence_);
+	ActiveTimerSet::iterator it = activeTimers_.find(timer);
+	if (it != activeTimers_.end())
+	{
+		size_t n = timers_.erase(Entry(it->first->expiration(), it->first));
+		assert(n == 1);
+		IntendToIgnoreThisVariable(n);
+		delete it->first;
+		activeTimers_.erase(it);
+	}
+	else if (callingExpiredTimers_)
+	{
+		cancelingTimers_.insert(timer);
+	}
+
+	assert(timers_.size() == activeTimers_.size());
+}
+
+void TimerQueue::handleRead()
+{
+	loop_->assertInLoopThread();
+	Timestamp now(Timestamp::now());
+	readTimerfd(timerfd_, now);
+
+	std::vector<Entry> expired = getExpired(now);
+
+	callingExpiredTimers_ = true;
+	cancelingTimers_.clear();
+	// safe to callback outside critical section
+	for (const Entry& it : expired)
+	{
+		it.second->run();
+	}
+	callingExpiredTimers_ = false;
+
+	reset(expired, now);
+}
+
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
 	assert(timers_.size() == activeTimers_.size());
@@ -174,30 +244,4 @@ bool TimerQueue::insert(Timer* timer)
 
 	assert(timers_.size() == activeTimers_.size());
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
