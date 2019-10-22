@@ -3,13 +3,16 @@
 #include "Timer.h"
 #include "TimerId.h"
 #include "EventLoop.h"
+#include "../base/IgnoreUnusedWarning.h"
 
 #include <sys/timerfd.h>
 #include <unistd.h>
 #include <iostream>
 #include <strings.h>
 #include <functional>
-
+#include <utility>
+#include <assert.h>
+#include <algorithm>
 
 
 int createTimerfd()
@@ -88,7 +91,89 @@ TimerQueue::~TimerQueue()
 	}
 }
 
+std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
+{
+	assert(timers_.size() == activeTimers_.size());
+	std::vector<Entry> expired;
+	Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+	TimerList::iterator end = timers_.lower_bound(sentry);
+	assert(end == timers_.end() || now < end->first);
+	std::copy(timers_.begin(), end, back_inserter(expired));
+	timers_.erase(timers_.begin(), end);
 
+	for (const Entry& it : expired)
+	{
+		ActiveTimer timer(it.second, it.second.sequence());
+		int n = activeTimers_.erase(timer);
+		assert(n == 1);
+		IntendToIgnoreThisVariable(n);
+	}
+
+	assert(timers_.size() == activeTimers_.size());
+	return expired;
+}
+
+void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
+{
+	Timestamp nextExpire;
+
+	for (const Entry& it : expired)
+	{
+		ActiveTimer timer(it.second, it.second->sequence());
+		if (it.second->repeat() &&
+			cancelingTimers_.find(timer) == cancelingTimers_.end())
+		{
+			it.second->restart();
+			insert(it.second);
+		}
+		else
+		{
+			delete it.second;
+		}
+	}
+
+	if (!timers_.empty())
+	{
+		nextExpire = timers_.begin()->second->expiration();
+	}
+
+	if (nextExpire.valid())
+	{
+		resetTimerfd(timerfd_, nextExpire);
+	}
+}
+
+bool TimerQueue::insert(Timer* timer)
+{
+	loop_->assertInLoopThread();
+	assert(timers_.size() == activeTimers_.size());
+
+	bool earliestChanged = false;
+	Timestamp when = timer->expiration();
+	TimerList::iterator it = timers_.begin();
+	if(it == timers_.end() || when < it->first) {
+		earliestChanged = true;
+	}
+
+	{
+		std::pair<TimerList::iterator, bool> result = 
+			timers_.insert(Entry(when, timer));
+		assert(result.second == true);
+		// assert() function only valid when DEBUG, otherwise, result will be 
+		// not unused, so the gcc compiler will warning
+		// use the method below to avoid warning
+		IntendToIgnoreThisVariable(result); 
+	}
+
+	{
+		std::pair<ActiveTimerSet::iterator, bool> result 
+			= activeTimers_.insert(ActiveTimer(timer, timer->sequence()));
+		assert(result.second);
+		IntendToIgnoreThisVariable(result);
+	}
+
+	assert(timers_.size() == activeTimers_.size());
+}
 
 
 
