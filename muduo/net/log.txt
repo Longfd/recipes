@@ -1,3 +1,0 @@
-main(): pid = 13580, tid = 13580
-[INFO]EventLoop created at: 0x7ffef86de250 thredId_: 13580
-[LOG_TRACE]EventLoop 0x7ffef86de250 stop looping

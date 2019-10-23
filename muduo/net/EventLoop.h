@@ -4,6 +4,7 @@
 #include "../base/Noncopyable.h"
 #include "../base/CurrentThread.h"
 #include "../base/TimeStamp.h"
+#include "../base/Mutex.h"
 #include "Callbacks.h"
 #include "TimerId.h"
 
@@ -16,6 +17,8 @@ class TimerQueue;
 class EventLoop : Noncopyable
 {
 public:
+	typedef std::function<void()> Functor;
+
 	EventLoop();
 	~EventLoop();
 
@@ -53,9 +56,6 @@ public:
 	}
 
 	EventLoop* getEventLoopOfCurrentThread();
-
-	// internal usage
-	void updateChannel(Channel* theChannel);
 
 private:
 	typedef std::vector<Channel*> ChannelList;

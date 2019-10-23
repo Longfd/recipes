@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 template<typename T>
-class AtomicIntergerT : Noncopyable
+class AtomicIntegerT : Noncopyable
 {
 	public:
 		T get()
@@ -22,6 +22,11 @@ class AtomicIntergerT : Noncopyable
 		{
 			// in gcc >= 4.7: __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST)
 			return __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST);
+		}
+
+		T addAndGet(T x)
+		{
+			return getAndAdd(x) + x;
 		}
 
 		T incrementAndGet()
@@ -52,7 +57,7 @@ class AtomicIntergerT : Noncopyable
 		T getAndSet(T newValue)
 		{
 			// in gcc >= 4.7: __atomic_exchange_n(&value, newValue, __ATOMIC_SEQ_CST)
-			return __atomic_exchange_n(&value, newValue, __ATOMIC_SEQ_CST);
+			return __atomic_exchange_n(&value_, newValue, __ATOMIC_SEQ_CST);
 		}
 
 	private:
