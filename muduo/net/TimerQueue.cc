@@ -83,7 +83,7 @@ void resetTimerfd(int timerfd, Timestamp expiration)
 TimerQueue::~TimerQueue()
 {
 	timerfdChannel_.disableAll();
-	timerfdChannel_.remove();
+	//timerfdChannel_.remove();
 	::close(timerfd_);
 	// do not remove channel, since we're in EventLoop::dtor();
 	for (const Entry& timer : timers_)
@@ -92,7 +92,7 @@ TimerQueue::~TimerQueue()
 	}
 }
 
-TimerId addTimer(TimerCallback cb, 
+TimerId TimerQueue::addTimer(TimerCallback cb, 
 				 Timestamp when, 
 				 double interval)
 {
@@ -173,7 +173,7 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 
 	for (const Entry& it : expired)
 	{
-		ActiveTimer timer(it.second, it.second.sequence());
+		ActiveTimer timer(it.second, it.second->sequence());
 		int n = activeTimers_.erase(timer);
 		assert(n == 1);
 		IntendToIgnoreThisVariable(n);
@@ -193,7 +193,7 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 		if (it.second->repeat() &&
 			cancelingTimers_.find(timer) == cancelingTimers_.end())
 		{
-			it.second->restart();
+			it.second->restart(now);
 			insert(it.second);
 		}
 		else
@@ -243,5 +243,6 @@ bool TimerQueue::insert(Timer* timer)
 	}
 
 	assert(timers_.size() == activeTimers_.size());
+	return earliestChanged;
 }
 

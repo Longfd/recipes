@@ -1,3 +1,4 @@
+#include "../base/CurrentThread.h"
 #include "EventLoop.h"
 #include "EventLoopThread.h"
 #include <stdio.h>
@@ -8,19 +9,19 @@
 void callbackFunc()
 {
 	printf("runInThread(): pid = %d, tid = %d\n",
-			getpid(), muduo::CurrentThread::tid());
+			getpid(), CurrentThread::gettid());
 }
 
 int main()
 {
 	printf("runInThread(): pid = %d, tid = %d\n",
-			getpid(), muduo::CurrentThread::tid());
+			getpid(), CurrentThread::gettid());
 
-	muduo::EventLoopThread loopThread;
+	EventLoopThread loopThread;
 	EventLoop* loop = loopThread.startLoop();
-	loop->runInLoop(runInThread);
+	loop->runInLoop(callbackFunc);
 	sleep(1);
-	loop->runAfter(2, runInThread);
+	loop->runAfter(2, callbackFunc);
 	sleep(3);
 	loop->quit();
 

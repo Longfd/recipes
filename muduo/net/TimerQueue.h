@@ -7,6 +7,8 @@
 
 #include "../base/Noncopyable.h"
 #include "../base/TimeStamp.h"
+#include "Channel.h"
+#include "Callbacks.h"
 
 #include <utility>
 #include <set>
@@ -14,6 +16,8 @@
 
 class EventLoop;
 class Channel;
+class TimerId;
+class Timer;
 class TimerQueue : Noncopyable
 {
 public:
@@ -26,6 +30,9 @@ public:
 					 double interval);
 
 	void cancel(TimerId timerId);
+
+	void addTimerInLoop(Timer* timer);
+  	void cancelInLoop(TimerId timerId);
 
 	typedef std::pair<Timestamp, Timer*> Entry;
 	typedef std::set<Entry> TimerList;

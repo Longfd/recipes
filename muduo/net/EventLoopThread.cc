@@ -11,7 +11,6 @@
 
 #include <functional>
 
-using namespace muduo;
 
 EventLoopThread::EventLoopThread()
   : loop_(NULL),

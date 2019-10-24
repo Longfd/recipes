@@ -9,19 +9,17 @@
 #define MUDUO_BASE_THREAD_H
 
 #include "Atomic.h"
+#include "Noncopyable.h"
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <pthread.h>
 
-namespace muduo
-{
 
-class Thread : boost::noncopyable
+class Thread : Noncopyable
 {
  public:
-  typedef boost::function<void ()> ThreadFunc;
+  typedef std::function<void ()> ThreadFunc;
 
   explicit Thread(const ThreadFunc&, const std::string& name = std::string());
   ~Thread();
@@ -40,20 +38,19 @@ class Thread : boost::noncopyable
   bool        started_;
   bool        joined_;
   pthread_t   pthreadId_;
-  boost::shared_ptr<pid_t> tid_;
+  std::shared_ptr<pid_t> tid_;
   ThreadFunc  func_;
   std::string name_;
 
   static AtomicInt32 numCreated_;
 };
 
-namespace CurrentThread
+namespace currentThread
 {
   pid_t tid();
   const char* name();
   bool isMainThread();
 }
 
-}
 
 #endif

@@ -7,20 +7,17 @@
 
 #include "Thread.h"
 
-#include <boost/weak_ptr.hpp>
-
 #include <unistd.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <linux/unistd.h>
+#include <assert.h>
 
-namespace muduo
-{
-namespace CurrentThread
+
+namespace currentThread
 {
   __thread const char* t_threadName = "unknown";
-}
 }
 
 namespace
@@ -35,7 +32,7 @@ pid_t gettid()
 void afterFork()
 {
   t_cachedTid = gettid();
-  muduo::CurrentThread::t_threadName = "main";
+  currentThread::t_threadName = "main";
   // no need to call pthread_atfork(NULL, NULL, &afterFork);
 }
 
@@ -44,7 +41,7 @@ class ThreadNameInitializer
  public:
   ThreadNameInitializer()
   {
-    muduo::CurrentThread::t_threadName = "main";
+    currentThread::t_threadName = "main";
     pthread_atfork(NULL, NULL, &afterFork);
   }
 };
@@ -53,14 +50,14 @@ ThreadNameInitializer init;
 
 struct ThreadData
 {
-  typedef muduo::Thread::ThreadFunc ThreadFunc;
+  typedef Thread::ThreadFunc ThreadFunc;
   ThreadFunc func_;
   std::string name_;
-  boost::weak_ptr<pid_t> wkTid_;
+  std::weak_ptr<pid_t> wkTid_;
 
   ThreadData(const ThreadFunc& func,
              const std::string& name,
-             const boost::shared_ptr<pid_t>& tid)
+             const std::shared_ptr<pid_t>& tid)
     : func_(func),
       name_(name),
       wkTid_(tid)
@@ -68,8 +65,8 @@ struct ThreadData
 
   void runInThread()
   {
-    pid_t tid = muduo::CurrentThread::tid();
-    boost::shared_ptr<pid_t> ptid = wkTid_.lock();
+    pid_t tid = currentThread::tid();
+    std::shared_ptr<pid_t> ptid = wkTid_.lock();
 
     if (ptid)
     {
@@ -77,10 +74,10 @@ struct ThreadData
       ptid.reset();
     }
 
-    muduo::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
-    ::prctl(PR_SET_NAME, muduo::CurrentThread::t_threadName);
+    currentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
+    ::prctl(PR_SET_NAME, currentThread::t_threadName);
     func_(); // FIXME: surround with try-catch, see muduo
-    muduo::CurrentThread::t_threadName = "finished";
+    currentThread::t_threadName = "finished";
   }
 };
 
@@ -94,9 +91,7 @@ void* startThread(void* obj)
 
 }
 
-using namespace muduo;
-
-pid_t CurrentThread::tid()
+pid_t currentThread::tid()
 {
   if (t_cachedTid == 0)
   {
@@ -105,12 +100,12 @@ pid_t CurrentThread::tid()
   return t_cachedTid;
 }
 
-const char* CurrentThread::name()
+const char* currentThread::name()
 {
   return t_threadName;
 }
 
-bool CurrentThread::isMainThread()
+bool currentThread::isMainThread()
 {
   return tid() == ::getpid();
 }
@@ -157,3 +152,4 @@ void Thread::join()
   joined_ = true;
   pthread_join(pthreadId_, NULL);
 }
+

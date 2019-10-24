@@ -30,10 +30,11 @@ static int createEventfd()
 
 EventLoop::EventLoop() 
 	:looping_(false),
-	thredId_(CurrentThread::gettid()),
-	poller_(new Poller(this)),
 	quit_(false),
 	callingPendingFunctors_(false),
+	thredId_(CurrentThread::gettid()),
+	pollReturnTime_(Timestamp()),
+	poller_(new Poller(this)),
 	timerQueue_(new TimerQueue(this)),
 	wakeupfd_(createEventfd()),
 	wakeupChannel_(new Channel(this, wakeupfd_))
@@ -51,7 +52,7 @@ EventLoop::EventLoop()
 	}
 
 	wakeupChannel_->setReadCallback(
-			std::bind(&EventLoop::handleRead(), this));
+			std::bind(&EventLoop::handleRead, this));
 	wakeupChannel_->enableReading();
 }
 
@@ -125,7 +126,7 @@ void EventLoop::runInLoop(const Functor& cb)
 void EventLoop::queueInLoop(const Functor& cb)
 {
 	{
-		MutexLockGuard(mutex_);
+		MutexLockGuard lockGuard(mutex_);
 		pendingFunctors_.push_back(cb);
 	}
 
@@ -142,13 +143,13 @@ TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
 
 TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
 {
-	Timestamp time(addTime(Timestamp::now, delay));
+	Timestamp time(addTime(Timestamp::now(), delay));
 	return runAt(time, cb);
 }
 
 TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
 {
-	Timestamp time(addTime(Timestamp::now, interval));
+	Timestamp time(addTime(Timestamp::now(), interval));
 	return timerQueue_->addTimer(cb, time, interval);
 }
 
@@ -178,7 +179,7 @@ void EventLoop::doPendingFunctors()
 	callingPendingFunctors_ = true;
 
 	{
-		MutexLockGuard(mutex_);
+		MutexLockGuard lockGuard(mutex_);
 		functors.swap(pendingFunctors_);
 	}
 

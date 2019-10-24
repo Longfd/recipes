@@ -8,18 +8,16 @@
 #ifndef MUDUO_NET_EVENTLOOPTHREAD_H
 #define MUDUO_NET_EVENTLOOPTHREAD_H
 
+#include "../base/Noncopyable.h"
 #include "../base/Condition.h"
 #include "../base/Mutex.h"
 #include "../base/Thread.h"
 
-#include <boost/noncopyable.hpp>
 
-namespace muduo
-{
 
 class EventLoop;
 
-class EventLoopThread : boost::noncopyable
+class EventLoopThread : Noncopyable
 {
  public:
   EventLoopThread();
@@ -36,7 +34,6 @@ class EventLoopThread : boost::noncopyable
   Condition cond_;
 };
 
-}
 
 #endif  // MUDUO_NET_EVENTLOOPTHREAD_H
 
