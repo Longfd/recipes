@@ -1,9 +1,10 @@
-PROGS = test01 test02 test03
+PROGS = test01 test02 test03 test04
 CC = g++ -std=c++11
 CFLAGS = -I./ -D_REENTRANT -D__STDC_FORMAT_MACROS -Wall
 LIBFLAG = -lpthread
 BASE_SRC = ../base/CurrentThread.cpp ../base/TimeStamp.cpp ../base/Thread.cc
-NET_SRC = EventLoop.cpp Channel.cc Poller.cc EventLoopThread.cc TimerQueue.cc Timer.cc
+NET_SRC = EventLoop.cpp Channel.cc Poller.cc EventLoopThread.cc TimerQueue.cc Timer.cc \
+		  Acceptor.cc InetAddress.cc Socket.cc SocketOps.cc
 
 ifeq ($(BUILD), release)   
 # "Release" build - optimization, and no debug symbols
@@ -27,6 +28,9 @@ test02: test02.cc $(BASE_SRC) $(NET_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBFLAG)
 
 test03: test03.cc $(BASE_SRC) $(NET_SRC)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBFLAG)
+
+test04: test04.cc $(BASE_SRC) $(NET_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBFLAG)
 
 clean:

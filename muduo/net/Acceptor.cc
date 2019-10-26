@@ -2,6 +2,7 @@
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "SocketOps.h"
+#include "Socket.h"
 
 #include <utility>
 
