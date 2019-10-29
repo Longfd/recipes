@@ -13,12 +13,12 @@ class Channel;
 class EventLoop;
 class Socket;
 
-class TcpConnection : Noncopyable
+class TcpConnection : Noncopyable,
 					  public std::enable_shared_from_this<TcpConnection>
 {
 public:
 	TcpConnection(EventLoop* loop,
-				  const std::string name,
+				  const std::string& name,
 				  int sockfd,
 				  const InetAddress& localAddr,
 				  const InetAddress& peerAddr);

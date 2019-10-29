@@ -32,11 +32,11 @@ void TcpServer::start()
 
 	if (!acceptor_->listening())
 	{
-		loop_->runInLoop(std::bind(&Acceptor::listen, acceptor_->get()));
+		loop_->runInLoop(std::bind(&Acceptor::listen, acceptor_.get()));
 	}
 }
 
-TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
+void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
 	loop_->assertInLoopThread();
 	

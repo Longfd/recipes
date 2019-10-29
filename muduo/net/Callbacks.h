@@ -23,9 +23,12 @@ typedef std::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
 typedef std::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
 
 // the data has been read to (buf, len)
+//typedef std::function<void (const TcpConnectionPtr&,
+//							Buffer*,
+//							Timestamp)> MessageCallback;
 typedef std::function<void (const TcpConnectionPtr&,
-							Buffer*,
-							Timestamp)> MessageCallback;
+							const char*,
+							size_t)> MessageCallback;
 
 void defaultConnectionCallback(const TcpConnectionPtr& conn);
 void defaultMessageCallback(const TcpConnectionPtr& conn,

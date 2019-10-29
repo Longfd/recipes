@@ -11,7 +11,7 @@
 #include <iostream>
 
 #define err_handle(msg) \
-		do { perror(msg); exit(EXIT_FAILURE); } while(0)
+	do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
 
 // anonymous namespace for unique funcntion or variable in this file
@@ -20,10 +20,10 @@ namespace
 	typedef struct sockaddr SA;
 
 	template<typename To, typename From>
-	inline To implicit_cast(From const &f)
-	{
-		  return f;
-	}
+		inline To implicit_cast(From const &f)
+		{
+			return f;
+		}
 
 	const SA* sockaddr_cast(const struct sockaddr_in* addr)
 	{
@@ -77,13 +77,13 @@ void sockets::listenOrDie(int sockfd)
 int sockets::accept(int sockfd, struct sockaddr_in* addr)
 {
 	socklen_t addrlen = sizeof(struct sockaddr_in);
-	
+
 #if VALGRIND
 	int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
 	setNonBlockAndCloseOnExec(connfd);
 #else
 	int connfd = ::accept4(sockfd, sockaddr_cast(addr), &addrlen, 
-						   SOCK_NONBLOCK | SOCK_CLOEXEC);
+			SOCK_NONBLOCK | SOCK_CLOEXEC);
 #endif
 
 	if (connfd == -1)
@@ -103,7 +103,7 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
 				errno = savedErrno;
 				break;
 
-			// aborted
+				// aborted
 			default:
 				err_handle("accept() error");
 		}
@@ -122,7 +122,7 @@ void sockets::close(int sockfd)
 void sockets::toHostPort(char* buf, size_t size, const struct sockaddr_in& addr)
 {
 	char host[INET_ADDRSTRLEN] = "INVALID";
-	
+
 	::inet_ntop(AF_INET, (void*)&addr.sin_addr, host, sizeof(host));
 	uint16_t port = networkToHost16(addr.sin_port);
 	snprintf(buf, size, "%s:%u", host, port);
@@ -136,7 +136,17 @@ void sockets::fromHostPort(const char* ip, uint16_t port, struct sockaddr_in* ad
 		std::cout << "inet_pton() error\n";
 }
 
-
+struct sockaddr_in sockets::getLocalAddr(int sockfd)
+{
+	struct sockaddr_in localaddr;
+	bzero(&localaddr, sizeof localaddr);
+	socklen_t addrlen = sizeof(localaddr);
+	if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0)
+	{
+		std::cout << "sockets::getLocalAddr";
+	}
+	return localaddr;
+}
 
 
 

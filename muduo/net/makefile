@@ -4,7 +4,8 @@ CFLAGS = -I./ -D_REENTRANT -D__STDC_FORMAT_MACROS -Wall
 LIBFLAG = -lpthread
 BASE_SRC = ../base/CurrentThread.cpp ../base/TimeStamp.cpp ../base/Thread.cc
 NET_SRC = EventLoop.cpp Channel.cc Poller.cc EventLoopThread.cc TimerQueue.cc Timer.cc \
-		  Acceptor.cc InetAddress.cc Socket.cc SocketOps.cc
+		  Acceptor.cc InetAddress.cc Socket.cc SocketOps.cc \
+		  TcpServer.cc TcpConnection.cc
 
 ifeq ($(BUILD), release)   
 # "Release" build - optimization, and no debug symbols
@@ -31,6 +32,9 @@ test03: test03.cc $(BASE_SRC) $(NET_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBFLAG)
 
 test04: test04.cc $(BASE_SRC) $(NET_SRC)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBFLAG)
+
+test05: test05.cc $(BASE_SRC) $(NET_SRC)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBFLAG)
 
 clean:

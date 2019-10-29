@@ -6,6 +6,8 @@
 #include "TcpConnection.h"
 #include "../base/Noncopyable.h"
 
+#include <map>
+
 class Acceptor;
 class EventLoop;
 
@@ -34,7 +36,7 @@ private:
 
 	EventLoop* loop_;
 	const std::string name_;
-	unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+	std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
 	ConnectionCallback connectionCallback_;
 	MessageCallback messageCallback_;
 	bool started_;

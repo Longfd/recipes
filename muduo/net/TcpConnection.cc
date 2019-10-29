@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <iostream>
 
+
 TcpConnection::TcpConnection(EventLoop* loop,
 						const std::string& name,
 						int sockfd,
@@ -17,6 +18,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
 						const InetAddress& peerAddr)
 	: loop_(loop),
 	  name_(name),
+	  state_(kConnecting),
 	  socket_(new Socket(sockfd)),
 	  channel_(new Channel(loop, sockfd)),
 	  localAddr_(localAddr),
@@ -29,7 +31,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
 
 TcpConnection::~TcpConnection()
 {
-	std::cout << "TcpConnection::dtor[" << name << "] at" << this 
+	std::cout << "TcpConnection::dtor[" << name_ << "] at" << this 
 			  << " fd = " << channel_->fd() << std::endl;
 }
 
