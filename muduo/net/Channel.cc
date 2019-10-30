@@ -4,6 +4,7 @@
 //#define _GNU_SOURCE enable by default
 #include <poll.h>
 #include <iostream>
+#include <assert.h>
 
 
 const int Channel::kNoneEvent = 0;
@@ -15,8 +16,14 @@ Channel::Channel(EventLoop* loop, int fd)
 	fd_(fd),
 	events_(0),
 	revents_(0),
-	index_(-1)
+	index_(-1),
+	eventHandling_(false)
 {
+}
+
+Channel::~Channel()
+{
+	assert(!eventHandling_);	
 }
 
 void Channel::update()
@@ -28,6 +35,14 @@ void Channel::handleEvent()
 {
 	if (revents_ & POLLNVAL) {
 		std::cout << "Channel::handleEvent() POLLNVAL!\n";
+		return;
+	}
+
+	eventHandling_ = true;
+
+	if ((revents_ & POLLHUP) && !(revents_ & POLLIN)) {
+		std::cout << "Channel::handleEvent() POLLHUP(output only)\n";
+		if (closeCallback_) closeCallback_();
 	}
 
 	if (revents_ & (POLLNVAL | POLLERR) ) {

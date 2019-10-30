@@ -30,6 +30,7 @@ public:
 	
 	// add new channel with fd, or update events of fd in channel
 	void updateChannel(Channel* channel);
+	void removeChannel(Channel* channel);
 	void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
 
 	void assertInLoopThread() { ownerLoop_->assertInLoopThread(); }
@@ -37,6 +38,7 @@ public:
 private:
 	typedef std::vector<struct pollfd> PollFdList;
 	typedef std::map<int, Channel*> ChannelMap;
+
 
 	EventLoop* ownerLoop_;
 	PollFdList pollfds_;
