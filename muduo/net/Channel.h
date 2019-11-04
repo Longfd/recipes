@@ -4,21 +4,24 @@
 // A selectable I/O channel
 // the file descriptor could be a socket, timerfd, eventfd or signalfd
 
-#include <functional>
 #include "../base/Noncopyable.h"
 #include "Callbacks.h"
+
+#include <functional>
+
 
 class EventLoop;
 class Channel : Noncopyable
 {
 public:
 	typedef std::function<void()> EventCallback;
+	typedef std::function<void(Timestamp)> ReadEventCallback;
 
 	Channel(EventLoop* loop, int fd);
 	~Channel();
 
-	void handleEvent();
-	void setReadCallback(const EventCallback& cb) { readCallback_ = cb; }
+	void handleEvent(Timestamp receiveTime);
+	void setReadCallback(const ReadEventCallback& cb) { readCallback_ = cb; }
 	void setWriteCallback(const EventCallback& cb) { writeCallback_ = cb; }
 	void setErrorCallback(const EventCallback& cb) { errorCallback_ = cb; }
 	void setCloseCallback(const EventCallback& cb) { closeCallback_ = cb; }

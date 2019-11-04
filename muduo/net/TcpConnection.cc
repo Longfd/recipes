@@ -47,17 +47,19 @@ void TcpConnection::connectEstablished()
 	connectionCallback_(shared_from_this());
 }
 
-void TcpConnection::handleRead()
+void TcpConnection::handleRead(Timestamp receiveTime)
 {
-	char buf[65536];
-	ssize_t n = ::read(channel_->fd(), buf, sizeof(buf));
+	int saveErrno = 0;
+	ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
 	if (n > 0) {
-		messageCallback_(shared_from_this(), buf, n);
+		messageCallback_(shared_from_this(), inputBuffer_, receiveTime);
 	}
 	else if (n == 0) {
 		handleClose();
 	}
 	else {
+		errno = saveErrno;
+		std::cout << "TcpConnection::handleRead() Error\n";
 		handleError();
 	}
 

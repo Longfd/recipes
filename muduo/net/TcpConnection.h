@@ -1,9 +1,10 @@
 #ifndef TCPCONNECTION_H
 #define TCPCONNECTION_H
 
+#include "../base/Noncopyable.h"
 #include "Callbacks.h"
 #include "InetAddress.h"
-#include "../base/Noncopyable.h"
+#include "Buffer.h"
 
 // #include <any> // c++17 
 #include <memory>
@@ -44,7 +45,7 @@ private:
 	enum StateE { kConnecting, kConnected, kDisconnected};
 
 	void setState(StateE s) { state_ = s; }
-	void handleRead();
+	void handleRead(Timestamp receiveTime);
 	void handleWrite();
 	void handleClose();
 	void handleError();
@@ -59,6 +60,7 @@ private:
 	ConnectionCallback connectionCallback_;
 	MessageCallback messageCallback_;
 	CloseCallback closeCallback_;
+	Buffer inputBuffer_;
 };
 
 #endif // TCPCONNECTION_H
