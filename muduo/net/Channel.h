@@ -57,7 +57,7 @@ private:
 	int index_; // used by Poller
 	bool eventHandling_;
 
-	EventCallback readCallback_;
+	ReadEventCallback readCallback_;
 	EventCallback writeCallback_;
 	EventCallback errorCallback_;
 	EventCallback closeCallback_;

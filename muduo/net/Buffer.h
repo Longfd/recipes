@@ -44,7 +44,7 @@ class Buffer
 
 		size_t prependableBytes() const { return readerIndex_; }
 
-		const char* peek() const { return begin(); }
+		const char* peek() const { return begin() + readerIndex_; }
 
 		void retrieve(size_t len)
 		{

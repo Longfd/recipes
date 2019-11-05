@@ -28,7 +28,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
 {
 	std::cout << "TcpConnection::ctor[" << name << "] at" << this 
 		<< " fd = " << sockfd << std::endl;
-	channel_->setReadCallback(std::bind(&TcpConnection::handleRead, this));
+	channel_->setReadCallback(std::bind(&TcpConnection::handleRead, this, _1));
 }
 
 TcpConnection::~TcpConnection()
@@ -52,7 +52,7 @@ void TcpConnection::handleRead(Timestamp receiveTime)
 	int saveErrno = 0;
 	ssize_t n = inputBuffer_.readFd(channel_->fd(), &saveErrno);
 	if (n > 0) {
-		messageCallback_(shared_from_this(), inputBuffer_, receiveTime);
+		messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
 	}
 	else if (n == 0) {
 		handleClose();
@@ -62,7 +62,6 @@ void TcpConnection::handleRead(Timestamp receiveTime)
 		std::cout << "TcpConnection::handleRead() Error\n";
 		handleError();
 	}
-
 }
 
 
@@ -100,7 +99,7 @@ void TcpConnection::handleClose()
 {
 	loop_->assertInLoopThread();
 	std::cout << "TcpConnection::handleClose state = " << state_ << std::endl;
-	assert(state_ = kConnected || state_ == kDisconnecting);
+	assert(state_ == kConnected || state_ == kDisconnecting);
 	// we don't close fd, leave it to dtor, so we can find leaks easily
 	channel_->disableAll();	
 	// must be the last line
@@ -125,16 +124,16 @@ void TcpConnection::connectDestroyed()
 	loop_->removeChannel(channel_.get());
 }
 
-TcpConnection::shutdown()
+void TcpConnection::shutdown()
 {
 	if (state_ == kConnected)
 	{
 		setState(kDisconnecting);
-		loop_->runInThread(std::bind(&TcpConnection::shutdownInLoop, this));
+		loop_->runInLoop(std::bind(&TcpConnection::shutdownInLoop, this));
 	}
 }
 
-TcpConnection::shutdownInLoop()
+void TcpConnection::shutdownInLoop()
 {
 	loop_->assertInLoopThread();
 	if (!channel_->isWriting())
@@ -143,7 +142,7 @@ TcpConnection::shutdownInLoop()
 	}
 }
 
-TcpConnection::send(const std::string& message)
+void TcpConnection::send(const std::string& message)
 {
 	if (state_ != kConnected)
 	{
@@ -168,7 +167,7 @@ void TcpConnection::sendInLoop(const std::string& message)
 	if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0) {
 		nwrote = ::write(channel_->fd(), message.data(), message.size());
 		if (nwrote >= 0) {
-			if (implicit_cast<size_t>(nwrote) < message.size()) {
+			if (static_cast<size_t>(nwrote) < message.size()) {
 				std::cout << "I am going to write more data\n";
 			}
 		} else {
@@ -181,7 +180,7 @@ void TcpConnection::sendInLoop(const std::string& message)
 	}
 
 	assert(nwrote >= 0);
-	if (implicit_cast<size_t>(nwrote) < message.size()) {
+	if (static_cast<size_t>(nwrote) < message.size()) {
 		outputBuffer_.append(message.data()+nwrote, message.size()-nwrote);
 		if (!channel_->isWriting()) {
 			channel_->enableWriting();

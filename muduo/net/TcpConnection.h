@@ -32,7 +32,7 @@ public:
 	bool connected() const { return state_ == kConnected; }
 
 	// Thread safe
-	void send(const std:string& message);
+	void send(const std::string& message);
 	// Thread safe
 	void shutdown();
 

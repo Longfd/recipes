@@ -31,7 +31,7 @@ void Channel::update()
 	loop_->updateChannel(this);
 }
 
-void Channel::handleEvent()
+void Channel::handleEvent(Timestamp receiveTime)
 {
 	if (revents_ & POLLNVAL) {
 		std::cout << "Channel::handleEvent() POLLNVAL!\n";
@@ -49,11 +49,13 @@ void Channel::handleEvent()
 		if(errorCallback_) errorCallback_();
 	}
 	else if ( revents_ & (POLLIN | POLLRDHUP | POLLPRI) ) {
-		if(readCallback_) readCallback_();
+		if(readCallback_) readCallback_(receiveTime);
 	}
 	else if ( revents_ & POLLOUT ) {
 		if(writeCallback_) writeCallback_();
 	}
+
+	eventHandling_ = false;
 }
 
 

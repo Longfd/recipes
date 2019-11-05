@@ -3,12 +3,13 @@
 
 #include <errno.h>
 #include <sys/uio.h>
+#include <iostream>
 
 
-size_t Buffer::readFd(int fd, int* 	savedErrno)
+ssize_t Buffer::readFd(int fd, int* savedErrno)
 {
 	char extrabuf[65536];
-	struct iovec[2]; // scatter read
+	struct iovec vec[2]; // scatter read
 	const size_t writable = writableBytes();
 	vec[0].iov_base = begin() + writerIndex_;
 	vec[0].iov_len = writable;
@@ -19,7 +20,7 @@ size_t Buffer::readFd(int fd, int* 	savedErrno)
 	if (n < 0) {
 		*savedErrno = errno;
 	}
-	else if ( n <= writable ) {
+	else if ( static_cast<size_t>(n) <= writable ) {
 		writerIndex_ += n;
 	}
 	else {

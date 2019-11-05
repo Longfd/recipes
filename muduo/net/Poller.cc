@@ -101,7 +101,7 @@ void Poller::updateChannel(Channel* channel)
 void Poller::removeChannel(Channel* channel)
 {
 	assertInLoopThread();
-	std::cout << "fd = " << channel->fd();
+	std::cout << "Poller::removeChannel() fd = " << channel->fd() << std::endl;
 	assert(channels_.find(channel->fd()) != channels_.end());
 	assert(channels_[channel->fd()] == channel);
 	assert(channel->isNoneEvent());
