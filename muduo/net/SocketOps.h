@@ -50,6 +50,8 @@ namespace sockets
 
 	struct sockaddr_in getLocalAddr(int sockfd);
 	int getSocketError(int sockfd);
+
+	void shutdownWrite(int sockfd);
 }
 
 #endif

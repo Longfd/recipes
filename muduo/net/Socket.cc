@@ -41,3 +41,10 @@ void Socket::setReuseAddr(bool on)
 				 &optval, sizeof(optval));
 }
 
+void Socket::shutdownWrite()
+{
+	sockets::shutdownWrite(sockfd_);
+}
+
+
+
