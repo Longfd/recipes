@@ -9,6 +9,7 @@
 #include <poll.h>
 #include <functional>
 #include <sys/eventfd.h>
+#include <signal.h>
 
 // belongs to currentthread who first create the Eventloop obj;
 // "__thread" key words avoid one thread have more than one EventLoop obj;
@@ -27,6 +28,17 @@ static int createEventfd()
 	}
 	return evtfd;
 }
+
+class IgnoreSigPipe
+{
+public:
+	IgnoreSigPipe()
+	{
+		::signal(SIGPIPE, SIG_IGN);
+	}
+};
+
+IgnoreSigPipe initObj;
 
 EventLoop::EventLoop() 
 	:looping_(false),

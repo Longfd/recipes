@@ -1,5 +1,5 @@
 PROGS = test01 test02 test03 test04 test05 \
-		test06
+		test06 
 CC = g++ -std=c++11
 CFLAGS = -I./ -D_REENTRANT -D__STDC_FORMAT_MACROS -Wall
 LIBFLAG = -lpthread

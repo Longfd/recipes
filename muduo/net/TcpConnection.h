@@ -36,10 +36,15 @@ public:
 	// Thread safe
 	void shutdown();
 
+	void setTcpNoDelay(bool on);
+
 	void setConnectionCallback(const ConnectionCallback& cb) { connectionCallback_ = cb; }
 	void setMessageCallback(const MessageCallback& cb) { messageCallback_ = cb; }
 	// Internal use only
 	void setCloseCallback(const CloseCallback& cb) { closeCallback_ = cb; }
+
+	void setWriteCompleteCallback(const WriteCompleteCallback& cb) { writeCompleteCallback_ = cb; }
+	void setHighWaterMarkCallback(const HighWaterMarkCallback& cb) { highWaterMarkCallback_ = cb; }
 
 	// called when TcpServer accepts a new connection
 	void connectEstablished(); // should be called only once
@@ -64,9 +69,12 @@ private:
 	std::unique_ptr<Channel> channel_;
 	InetAddress localAddr_;
 	InetAddress peerAddr_;
+	size_t highWaterMark_;
 	ConnectionCallback connectionCallback_;
 	MessageCallback messageCallback_;
 	CloseCallback closeCallback_;
+	WriteCompleteCallback writeCompleteCallback_;
+	HighWaterMarkCallback highWaterMarkCallback_;
 	Buffer inputBuffer_;
 	Buffer outputBuffer_;
 };
