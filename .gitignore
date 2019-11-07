@@ -1,6 +1,15 @@
-// temporary files
-*.o
+# ignore objects and archives, anywhere in the tree
+*.[oa]
 
-// tag file
+# ignore tags file
 *tags
+
+# ignore executable file 
+# muduo
+test*
+!test*.cc
+# unp
+unp/tcp/*
+!unp/tcp/*.c
+
 
