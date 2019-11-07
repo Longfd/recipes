@@ -209,7 +209,10 @@ void EventLoop::removeChannel(Channel* channel)
 	poller_->removeChannel(channel);
 }
 
-
+void EventLoop::cancel(TimerId timerId)
+{
+	timerQueue_->cancel(timerId);
+}
 
 
 

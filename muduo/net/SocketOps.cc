@@ -136,18 +136,6 @@ void sockets::fromHostPort(const char* ip, uint16_t port, struct sockaddr_in* ad
 		std::cout << "inet_pton() error\n";
 }
 
-struct sockaddr_in sockets::getLocalAddr(int sockfd)
-{
-	struct sockaddr_in localaddr;
-	bzero(&localaddr, sizeof localaddr);
-	socklen_t addrlen = sizeof(localaddr);
-	if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0)
-	{
-		std::cout << "sockets::getLocalAddr";
-	}
-	return localaddr;
-}
-
 int sockets::getSocketError(int sockfd)
 {
 	int optval;
@@ -172,9 +160,42 @@ void sockets::shutdownWrite(int sockfd)
 	}
 }
 
+int sockets::connect(int sockfd, const struct sockaddr_in& addr)
+{
+	return ::connect(sockfd, sockaddr_cast(&addr), sizeof(addr));
+}
 
+bool sockets::isSelfConnect(int sockfd)
+{
+	struct sockaddr_in localaddr = getLocalAddr(sockfd);
+	struct sockaddr_in peeraddr = getPeerAddr(sockfd);
+	return localaddr.sin_port == peeraddr.sin_port && 
+		localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr;
+}
 
+struct sockaddr_in sockets::getLocalAddr(int sockfd)
+{
+	struct sockaddr_in localaddr;
+	bzero(&localaddr, sizeof localaddr);
+	socklen_t addrlen = sizeof(localaddr);
+	if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0)
+	{
+		std::cout << "sockets::getLocalAddr() error\n";
+	}
+	return localaddr;
+}
 
+struct sockaddr_in sockets::getPeerAddr(int sockfd)
+{
+	struct sockaddr_in peeraddr;
+	bzero(&peeraddr, sizeof peeraddr);
+	socklen_t addrlen = sizeof(peeraddr);
+	if (::getpeername(sockfd, sockaddr_cast(&peeraddr), &addrlen) < 0)
+	{
+		std::cout << "sockets::getPeerAddr() error\n";
+	}
+	return peeraddr;
+}
 
 
 
