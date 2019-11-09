@@ -24,7 +24,7 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buffer, Timestamp receiveTi
 		   CurrentThread::gettid(), buffer->readableBytes(), 
 		   conn->name().c_str(), receiveTime.toString().c_str());
 	std::string recv = buffer->retrieveAsString();
-	printf("recv:%s\n", recv.c_str());
+	printf("recv:%s", recv.c_str());
 	conn->send(recv);
 }
 

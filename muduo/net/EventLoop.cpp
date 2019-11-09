@@ -1,5 +1,6 @@
 #include "EventLoop.h"
 #include "Poller.h"
+#include "EPoller.h"
 #include "Channel.h"
 #include "TimerQueue.h"
 
@@ -46,7 +47,8 @@ EventLoop::EventLoop()
 	callingPendingFunctors_(false),
 	thredId_(CurrentThread::gettid()),
 	pollReturnTime_(Timestamp()),
-	poller_(new Poller(this)),
+	//poller_(new Poller(this)),
+	poller_(new EPoller(this)),
 	timerQueue_(new TimerQueue(this)),
 	wakeupfd_(createEventfd()),
 	wakeupChannel_(new Channel(this, wakeupfd_))

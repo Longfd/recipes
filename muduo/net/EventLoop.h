@@ -12,7 +12,8 @@
 #include <vector>
 
 class Channel;
-class Poller;
+//class Poller;
+class EPoller;
 class TimerQueue;
 class EventLoop : Noncopyable
 {
@@ -69,7 +70,8 @@ private:
 	bool callingPendingFunctors_; /* atomic */
 	const pid_t thredId_; // initialized at constructor
 	Timestamp pollReturnTime_;
-	std::unique_ptr<Poller> poller_;
+	//std::unique_ptr<Poller> poller_;
+	std::unique_ptr<EPoller> poller_;
 	std::unique_ptr<TimerQueue> timerQueue_;
 	int wakeupfd_;
 	std::unique_ptr<Channel> wakeupChannel_;
