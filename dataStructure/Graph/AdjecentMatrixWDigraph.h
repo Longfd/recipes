@@ -1,8 +1,14 @@
-#ifndef AdjecentMatrixWDigraph
-#define AdjecentMatrixWDigraph
+#ifndef AdjecentMatrixWDigraph_H
+#define AdjecentMatrixWDigraph_H
 
 #include <vector>
 #include <assert.h>
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+#include <queue>
+#include <stack>
+#include <unordered_set>
 
 using namespace std;
 
@@ -27,21 +33,30 @@ public:
         }
     }
 
-    int numberOfVertices() { return n; }
+    int numberOfVertices() { return n_; }
     int numberOfEdges() { return e_; }
     bool existEdge(int v1, int v2) const 
     {
-        if (0 < v1 && v1 <= n && 0 < v2 && v2 <= n && g_[v1][v2] != noEdge_)
+        if (0 < v1 && v1 <= n_ && 0 < v2 && v2 <= n_ && g_[v1][v2] != noEdge_)
             return true;
         else
             return false;
     }
+    
+    void output(ostream& out) const
+    {// Output the adjacency matrix.
+        for (int i = 1; i <= n_; i++)
+        {
+            copy(g_[i].begin()++, g_[i].end(), ostream_iterator<T>(out, "  "));
+            out << endl;
+        }
+    } 
 
     // update if the edge is already there
     void insertEdge(int v1, int v2, const T& weight = 1) 
     {
-        assert(0 < v1 && v1 <= n);
-        assert(0 < v2 && v2 <= n);
+        assert(0 < v1 && v1 <= n_);
+        assert(0 < v2 && v2 <= n_);
         assert(v1 != v2);
         
         if(g_[v1][v2] == noEdge_) 
@@ -51,8 +66,8 @@ public:
 
     void eraseEdge(int v1, int v2)
     {
-        assert(0 < v1 && v1 <= n);
-        assert(0 < v2 && v2 <= n);
+        assert(0 < v1 && v1 <= n_);
+        assert(0 < v2 && v2 <= n_);
         assert(v1 != v2);
         
         if(g_[v1][v2] != noEdge_) {
@@ -61,8 +76,51 @@ public:
         }
     }
 
+    void bfs(int v, vector<int>& reach) 
+    {
+        unordered_set<int> hash;
+        queue<int> que;
+        que.push(v);
+
+        while(!que.empty()) {
+          int curVertex = que.front();
+          que.pop();
+
+          for(int i = 1; i < n_+1; ++i) {
+            if (g_[curVertex][i] != noEdge_ && hash.find(i) == hash.end()) {
+                que.push(i);
+                hash.insert(i);
+                reach.push_back(i);
+            }  
+          }
+        }
+    }
+
+    void rdfs(int v, vector<int>& reach, unordered_set<int>& hash) 
+    {
+        for (int i = 1; i < n_+1; ++i) {
+          if (g_[v][i] != noEdge_ && hash.find(i) == hash.end()) {
+              hash.insert(i);
+              reach.push_back(i);
+              rdfs(i, reach, hash);
+          }
+        }
+    }
+
+    void dfs(int v, vector<int>& reach) 
+    {
+        unordered_set<int> hash;
+        rdfs(v, reach, hash);
+    }
 
 
 };
+
+template <class T>
+ostream& operator<<(ostream& out, const AdjecentMatrixWDigraph<T>& g)
+{
+  g.output(out); 
+  return out;
+}
 
 #endif

@@ -1,2 +1,5 @@
 # ignore .vscode in subDirectory exlcude root dir 
 */.vscode/*
+
+# ignore exe
+*.exe
